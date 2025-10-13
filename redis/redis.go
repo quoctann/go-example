@@ -204,9 +204,8 @@ func (r *RedisClient) GetPoolStats() *redis.PoolStats {
 	return r.client.PoolStats()
 }
 
-func RunRedisExample(isSkip bool) {
+func RunExample(isSkip bool) {
 	if isSkip {
-		log.Println("\n⚠️ Bỏ qua ví dụ Redis")
 		return
 	}
 

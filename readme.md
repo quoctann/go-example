@@ -1,8 +1,13 @@
 Example for
 
 [x] cronjob
+
 [x] redis
-[ ] command line
+
+[x] command line
+
 [ ] grpc
+
 [ ] upload file
+
 [ ] message queue

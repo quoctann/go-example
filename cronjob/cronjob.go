@@ -92,7 +92,6 @@ func (s *Scheduler) runTask(task Task) {
 
 func RunNotUseLibCronJobExample(isSkip bool) {
 	if isSkip {
-		fmt.Println("\n⚠️ Bỏ qua ví dụ cronjob không dùng lib")
 		return
 	}
 	// Tạo scheduler mới
@@ -125,7 +124,6 @@ func RunNotUseLibCronJobExample(isSkip bool) {
 // MARK: USE LIB
 func RunUseLibCronJobExample(isSkip bool) {
 	if isSkip {
-		fmt.Println("\n⚠️ Bỏ qua ví dụ cronjob dùng lib")
 		return
 	}
 
