@@ -12,12 +12,6 @@ import (
 )
 
 /*
-TÌNH HUỐNG:
-- Bạn có 3 servers chạy cùng 1 cronjob
-- Nếu không có lock: job chạy 3 lần trên 3 servers (BAD!)
-- Với Redis lock: chỉ 1 server chạy, 2 server chờ (GOOD!)
-
-CÁCH HOẠT ĐỘNG:
 1. Server A cố lock Redis key "job:backup:lock"
 2. Nếu lock thành công → Server A chạy job
 3. Server B, C thử lock nhưng thất bại → chúng chờ
@@ -36,9 +30,7 @@ type RedisLockManager struct {
 	lockWaitTime time.Duration // Thời gian chờ để acquire lock
 }
 
-// NewRedisLockManager tạo lock manager mới
 func NewRedisLockManager(redisAddr, instanceID string) (*RedisLockManager, error) {
-	// Kết nối đến Redis
 	client := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
 		Password: "",
@@ -131,93 +123,6 @@ func (r *RedisLockManager) Close() error {
 	return r.client.Close()
 }
 
-// ========== CÁC HÀM JOB PHÂN TÁN ==========
-
-// BackupDatabase job backup (chỉ 1 instance chạy)
-func BackupDatabase(lockMgr *RedisLockManager) {
-	ctx := context.Background()
-	jobName := "backup-database"
-
-	fmt.Printf("\n⏳ [BACKUP] Instance %s cố lấy lock...\n", lockMgr.instanceID)
-
-	// Cố acquire lock
-	acquired, err := lockMgr.AcquireLock(ctx, jobName)
-	if err != nil {
-		fmt.Printf("❌ [BACKUP] Lỗi acquire lock: %v\n", err)
-		return
-	}
-
-	if !acquired {
-		fmt.Printf("⏭️  [BACKUP] Instance %s không lấy được lock (instance khác đang chạy)\n",
-			lockMgr.instanceID)
-		return
-	}
-
-	fmt.Printf("🔐 [BACKUP] Instance %s đã lấy lock! Bắt đầu backup...\n", lockMgr.instanceID)
-
-	defer func() {
-		// Đảm bảo unlock khi xong
-		lockMgr.ReleaseLock(ctx, jobName)
-		fmt.Printf("🔓 [BACKUP] Instance %s đã unlock\n", lockMgr.instanceID)
-	}()
-
-	// Simulate backup
-	databases := []string{"users", "products", "orders"}
-	for i, db := range databases {
-		fmt.Printf("   [%d/%d] Backing up: %s\n", i+1, len(databases), db)
-		time.Sleep(1 * time.Second)
-	}
-
-	fmt.Printf("   ✅ Backup hoàn thành lúc %s\n", time.Now().Format("15:04:05"))
-}
-
-// SyncExternalData job sync dữ liệu từ bên ngoài (only 1 instance)
-func SyncExternalData(lockMgr *RedisLockManager) {
-	ctx := context.Background()
-	jobName := "sync-external-data"
-
-	fmt.Printf("\n⏳ [SYNC] Instance %s cố lấy lock...\n", lockMgr.instanceID)
-
-	// Lần này dùng TryAcquireLockWithWait - chờ nếu lock bị occupied
-	acquired := lockMgr.TryAcquireLockWithWait(ctx, jobName)
-
-	if !acquired {
-		fmt.Printf("⏭️  [SYNC] Instance %s không lấy được lock sau %v giây\n",
-			lockMgr.instanceID, lockMgr.lockWaitTime)
-		return
-	}
-
-	fmt.Printf("🔐 [SYNC] Instance %s đã lấy lock! Bắt đầu sync...\n", lockMgr.instanceID)
-
-	defer func() {
-		lockMgr.ReleaseLock(ctx, jobName)
-		fmt.Printf("🔓 [SYNC] Instance %s đã unlock\n", lockMgr.instanceID)
-	}()
-
-	// Simulate sync
-	endpoints := []string{"API 1", "API 2", "API 3"}
-	for i, endpoint := range endpoints {
-		fmt.Printf("   [%d/%d] Syncing from: %s\n", i+1, len(endpoints), endpoint)
-		time.Sleep(800 * time.Millisecond)
-	}
-
-	fmt.Printf("   ✅ Sync hoàn thành lúc %s\n", time.Now().Format("15:04:05"))
-}
-
-// GenerateReport job generate report (có thể chạy trên nhiều instance)
-func GenerateReport(instanceID string) {
-	fmt.Printf("\n📊 [REPORT] Instance %s đang generate report...\n", instanceID)
-
-	time.Sleep(1 * time.Second)
-
-	fmt.Printf("   ✅ Report generated lúc %s\n", time.Now().Format("15:04:05"))
-}
-
-// HealthCheck job kiểm tra sức khỏe (chạy trên tất cả instance)
-func HealthCheck(instanceID string) {
-	fmt.Printf("\n🏥 [HEALTH] Instance %s: System OK\n", instanceID)
-}
-
 // ========== UTILITY FUNCTIONS ==========
 
 // MonitorLocks hiển thị trạng thái của tất cả locks
@@ -307,25 +212,6 @@ func RunCronRedisLock(isSkip bool) {
 	)
 	fmt.Printf("✅ Job 2: %s - Mỗi 20 giây (distributed)\n", job2.Name())
 
-	// Job 3: Generate Report (chạy trên TẤT CẢ instances)
-	// Không cần lock
-	job3, _ := s.NewJob(
-		gocron.DurationJob(25*time.Second),
-		gocron.NewTask(func() { GenerateReport(instanceID) }),
-		gocron.WithName("Generate Report"),
-		gocron.WithTags("local"),
-	)
-	fmt.Printf("✅ Job 3: %s - Mỗi 25 giây (local, tất cả instances)\n", job3.Name())
-
-	// Job 4: Health Check (chạy trên TẤT CẢ instances)
-	job4, _ := s.NewJob(
-		gocron.DurationJob(10*time.Second),
-		gocron.NewTask(func() { HealthCheck(instanceID) }),
-		gocron.WithName("Health Check"),
-		gocron.WithTags("local"),
-	)
-	fmt.Printf("✅ Job 4: %s - Mỗi 10 giây (local, tất cả instances)\n", job4.Name())
-
 	// Job 5: Monitor Locks (chạy trên tất cả instances)
 	job5, _ := s.NewJob(
 		gocron.DurationJob(30*time.Second),
@@ -334,18 +220,6 @@ func RunCronRedisLock(isSkip bool) {
 		gocron.WithTags("monitoring"),
 	)
 	fmt.Printf("✅ Job 5: %s - Mỗi 30 giây (monitoring)\n", job5.Name())
-
-	fmt.Println("\n" + string(make([]byte, 70)) + "")
-	fmt.Println("\n💡 HƯỚNG DẪN CHẠY MULTIPLE INSTANCES:")
-	fmt.Println("   Mở 3 terminal khác nhau và chạy:")
-	fmt.Println("   Terminal 1: INSTANCE_ID=server-1 go run main.go")
-	fmt.Println("   Terminal 2: INSTANCE_ID=server-2 go run main.go")
-	fmt.Println("   Terminal 3: INSTANCE_ID=server-3 go run main.go")
-	fmt.Println("\n   Quan sát:")
-	fmt.Println("   • Jobs với tag 'distributed': chỉ 1 server chạy")
-	fmt.Println("   • Jobs với tag 'local': tất cả servers đều chạy")
-	fmt.Println("   • Jobs với tag 'monitoring': xem ai đang giữ lock")
-	fmt.Println("\n💡 Nhấn Ctrl+C để dừng")
 
 	// Start scheduler
 	s.Start()
@@ -381,30 +255,6 @@ func RunCronRedisLock(isSkip bool) {
 }
 
 /*
-CHẠY DEMO:
-   # Terminal 1
-   INSTANCE_ID=server-1 go run main.go
-
-   # Terminal 2 (tại cùng lúc)
-   INSTANCE_ID=server-2 go run main.go
-
-   # Terminal 3 (tùy chọn)
-   INSTANCE_ID=server-3 go run main.go
-
-QUAN SÁT KẾT QUẢ:
-   ✅ "Backup Database" và "Sync External Data":
-      - Chỉ 1 server chạy
-      - Server khác thấy "không lấy được lock"
-      - Lần chạy tiếp, server khác có thể chạy
-
-   ✅ "Generate Report" và "Health Check":
-      - Tất cả server đều chạy
-      - Không cần lock
-
-   ✅ "Monitor Locks":
-      - Hiển thị ai đang giữ lock
-      - Useful cho debugging
-
 LOCK MECHANISM:
 
    Redis SetNX:

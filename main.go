@@ -4,15 +4,20 @@ import (
 	"go-example/command"
 	"go-example/cronjob"
 	"go-example/redis"
+	"go-example/websocket"
 )
 
 func main() {
-	cronjob.RunNotUseLibCronJobExample(true)
-	cronjob.RunUseLibCronJobExample(true)
-	cronjob.RunCronRedisLock(true)
+	skip := true
 
-	redis.RunExample(true)
+	cronjob.RunNotUseLibCronJobExample(skip)
+	cronjob.RunUseLibCronJobExample(skip)
+	cronjob.RunCronRedisLock(skip)
 
-	command.RunBasic(true)
-	command.RunCobraCLI(false)
+	redis.RunExample(skip)
+
+	command.RunBasic(skip)
+	command.RunCobraCLI(skip)
+
+	websocket.RunExample(skip)
 }
