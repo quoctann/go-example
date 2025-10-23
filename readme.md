@@ -35,3 +35,5 @@ Example for
 [ ] graphql (gqlgen)
 
 [ ] fault tolerance (hystrix-go, resilience)
+
+Test
