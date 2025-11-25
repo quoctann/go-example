@@ -1,13 +1,29 @@
 package main
 
 import (
+	"go-example/command"
 	"go-example/cronjob"
 	"go-example/redis"
+	"go-example/streaming"
+	"go-example/websocket"
 )
 
 func main() {
-	cronjob.RunNotUseLibCronJobExample(true)
-	cronjob.RunUseLibCronJobExample(false)
+	skip := true
 
-	redis.RunRedisExample(true)
+	cronjob.RunNotUseLibCronJobExample(skip)
+	cronjob.RunUseLibCronJobExample(skip)
+	cronjob.RunCronRedisLock(skip)
+
+	redis.RunExample(skip)
+
+	command.RunBasic(skip)
+	command.RunCobraCLI(skip)
+
+	websocket.RunExample(skip)
+
+	streaming.RunExample(skip)
+	// need update skip flag, build and run separately to test game streaming
+	streaming.RunGameServerExample(skip)
+	streaming.RunGameClientExample(skip)
 }
