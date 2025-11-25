@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Go Streaming Demo</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        #sse-output, #chunked-output, #file-output { 
+            background: #f5f5f5; 
+            padding: 10px; 
+            margin: 10px 0; 
+            min-height: 100px;
+            border-radius: 3px;
+        }
+        .message { margin: 5px 0; padding: 5px; background: white; border-left: 3px solid #4CAF50; }
+    </style>
+</head>
+<body>
+    <h1>Go Streaming Examples</h1>
+    
+    <div class="section">
+        <h2>1. Server-Sent Events (SSE)</h2>
+        <button onclick="startSSE()">Start SSE Stream</button>
+        <button onclick="stopSSE()">Stop Stream</button>
+        <div id="sse-output"></div>
+    </div>
+
+    <div class="section">
+        <h2>2. Chunked Transfer Encoding</h2>
+        <button onclick="startChunked()">Start Chunked Stream</button>
+        <div id="chunked-output"></div>
+    </div>
+
+    <div class="section">
+        <h2>3. File Stream</h2>
+        <button onclick="startFileStream()">Start File Stream</button>
+        <div id="file-output"></div>
+    </div>
+
+    <script>
+        let eventSource;
+
+        function startSSE() {
+            const output = document.getElementById('sse-output');
+            output.innerHTML = '<div>Connecting...</div>';
+            
+            eventSource = new EventSource('/stream/sse');
+            
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                output.innerHTML += '<div class="message">Message #' + data.id + ': ' + data.content + '</div>';
+                output.scrollTop = output.scrollHeight;
+            };
+
+            eventSource.addEventListener('done', function(event) {
+                output.innerHTML += '<div style="color: green; font-weight: bold;">✓ ' + event.data + '</div>';
+                eventSource.close();
+            });
+
+            eventSource.onerror = function() {
+                output.innerHTML += '<div style="color: red;">Error</div>';
+                eventSource.close();
+            };
+        }
+
+        function stopSSE() {
+            if (eventSource) {
+                eventSource.close();
+                document.getElementById('sse-output').innerHTML += '<div style="color: orange;">Stream stopped</div>';
+            }
+        }
+
+        async function startChunked() {
+            const output = document.getElementById('chunked-output');
+            output.innerHTML = '<div>Streaming...</div>';
+            
+            try {
+                const response = await fetch('/stream/chunked');
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const {done, value} = await reader.read();
+                    if (done) break;
+                    
+                    buffer += decoder.decode(value, {stream: true});
+                }
+
+                const messages = JSON.parse(buffer);
+                output.innerHTML = '';
+                messages.forEach(msg => {
+                    output.innerHTML += '<div class="message">Message #' + msg.id + ': ' + msg.content + '</div>';
+                });
+            } catch (error) {
+                output.innerHTML = '<div style="color: red;">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function startFileStream() {
+            const output = document.getElementById('file-output');
+            output.innerHTML = '<div>Streaming file...</div>';
+            
+            try {
+                const response = await fetch('/stream/file');
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                output.innerHTML = '';
+                
+                while (true) {
+                    const {done, value} = await reader.read();
+                    if (done) break;
+                    
+                    const text = decoder.decode(value, {stream: true});
+                    output.innerHTML += text.replace(/\n/g, '<br>');
+                    output.scrollTop = output.scrollHeight;
+                }
+            } catch (error) {
+                output.innerHTML = '<div style="color: red;">Error: ' + error.message + '</div>';
+            }
+        }
+    </script>
+</body>
+</html>

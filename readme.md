@@ -12,11 +12,11 @@ Example for
 
 [ ] grpc
 
+[ ] stream
+
 [ ] message queue
 
-[ ] no-sql database
-
-[ ] sql database
+[ ] database (sql/no-sql)
 
 [ ] auth with jwt/oauth2
 
@@ -35,5 +35,3 @@ Example for
 [ ] graphql (gqlgen)
 
 [ ] fault tolerance (hystrix-go, resilience)
-
-Test

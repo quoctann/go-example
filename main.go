@@ -4,6 +4,7 @@ import (
 	"go-example/command"
 	"go-example/cronjob"
 	"go-example/redis"
+	"go-example/streaming"
 	"go-example/websocket"
 )
 
@@ -20,4 +21,9 @@ func main() {
 	command.RunCobraCLI(skip)
 
 	websocket.RunExample(skip)
+
+	streaming.RunExample(skip)
+	// need update skip flag, build and run separately to test game streaming
+	streaming.RunGameServerExample(skip)
+	streaming.RunGameClientExample(skip)
 }
