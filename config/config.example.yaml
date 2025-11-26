@@ -1,0 +1,12 @@
+# local config example
+
+server:
+  port: 9000
+  host: "localhost"
+
+database:
+  host: "db.local.dev"
+  port: 5432
+  user: "dev_user"
+  password: "dev_password"
+  name: "myapp_dev"

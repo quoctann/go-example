@@ -1,0 +1,30 @@
+# k8s config map example
+# kubectl apply -f config/
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app-container
+        # your docker image
+        image: your-dockerhub-username/go-example:latest 
+        ports:
+        - containerPort: 80
+        envFrom:
+        # inject all data from ConfigMap as env vars
+        - configMapRef:
+            name: my-app-config
+        # inject all data from Secret as env vars
+        - secretRef:
+            name: my-app-secret

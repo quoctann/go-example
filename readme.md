@@ -30,7 +30,7 @@ Example for
 
 [ ] api docs (swagger)
 
-[ ] email/sms (gomail, twilio)
+[ ] email/sms (gomail, twilio), forgot password
 
 [ ] graphql (gqlgen)
 

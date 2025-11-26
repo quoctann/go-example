@@ -2,6 +2,7 @@ package main
 
 import (
 	"go-example/command"
+	"go-example/config"
 	"go-example/cronjob"
 	"go-example/redis"
 	"go-example/streaming"
@@ -27,5 +28,7 @@ func main() {
 	streaming.RunGameServerExample(skip)
 	streaming.RunGameClientExample(skip)
 	// video streaming (like movies, not livestream low latency)
-	streaming.RunHLSExample(false)
+	streaming.RunHLSExample(skip)
+
+	config.RunLocalEnvExample(false)
 }

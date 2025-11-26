@@ -1,0 +1,14 @@
+# k8s config map example
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-app-config
+data:
+  # these config keys will be converted into environment variables, viper
+  # automatically map these into struct (example: SERVER_PORT -> server.port)
+  SERVER_PORT: "80"
+  SERVER_HOST: "0.0.0.0"
+  DATABASE_HOST: "some-database-host" # cluster db service name
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "some_database_name"

@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  my-app:
+    # image name after build and push
+    image: your-dockerhub-username/go-example:swarm 
+    ports:
+      - "8080:80"
+    environment:
+      # non-sensitive config can direct inject by env vars
+      - SERVER_PORT=80
+      - SERVER_HOST=0.0.0.0
+      - DATABASE_HOST=postgres # name db service in the same stack
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=myapp_prod
+    secrets:
+      # inject secret container
+      - db_password_file
+    depends_on:
+      - postgres
+    deploy:
+      replicas: 1
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=db_user
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password_file # use file secret for password
+      - POSTGRES_DB=myapp_prod
+    secrets:
+      - db_password_file
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      replicas: 1
+
+# define secret using on stack
+secrets:
+  db_password_file:
+    # docker would find secret matching this name in swarm
+    # if not found, use external: true
+    external: true
+
+volumes:
+  postgres_data:
+
+# 1. build & push docker image
+#
+# 2. create secret on swarm before deployment:
+#    echo "supersecretpassword" | docker secret create db_password_file -
+#
+# 3. deploy stack
+#    docker stack deploy -c docker-compose.yml my-app-stack
+#
+# 4. verify (by log or st)
+#    docker service logs my-app-stack_my-app
