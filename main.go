@@ -26,4 +26,6 @@ func main() {
 	// need update skip flag, build and run separately to test game streaming
 	streaming.RunGameServerExample(skip)
 	streaming.RunGameClientExample(skip)
+	// video streaming (like movies, not livestream low latency)
+	streaming.RunHLSExample(false)
 }
