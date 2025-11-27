@@ -12,6 +12,9 @@ import (
 /*
 	In local development
 
+	# Use .env file in local dev
+	github.com/joho/godotenv
+
 	# run without config file
 	go run .
 
@@ -39,6 +42,14 @@ type Config struct {
 		Host     string `mapstructure:"host"`
 		Port     int    `mapstructure:"port"`
 	} `mapstructure:"database"`
+
+	SMTP struct {
+		Host      string `mapstructure:"host"`
+		Port      int    `mapstructure:"port"`
+		User      string `mapstructure:"user"`
+		Password  string `mapstructure:"password"`
+		JWTSecret string `mapstructure:"jwtSecret"`
+	} `mapstructure:"smtp"`
 }
 
 func loadConfig(configPath string) (*Config, error) {
@@ -98,4 +109,8 @@ func RunLocalEnvExample(skip bool) {
 	fmt.Printf("App config loaded:\nServer: Host=%s, Port=%d\nDatabase: Host=%s, Port=%d, User=%s, Password=%s, Name=%s\n",
 		cfg.Server.Host, cfg.Server.Port, cfg.Database.Host, cfg.Database.Port, cfg.Database.User, cfg.Database.Password, cfg.Database.Name,
 	)
+}
+
+func LoadSMTPConfig() (*Config, error) {
+	return loadConfig("config/config.yaml")
 }

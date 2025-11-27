@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Mail Service Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 2rem;
+        }
+        .form-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #eee;
+        }
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        h2 {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+        input[type="email"] {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Important */
+        }
+        input{
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #message {
+            text-align: center;
+            margin-top: 1rem;
+            padding: 0.8rem;
+            border-radius: 4px;
+            display: none; /* Ẩn theo mặc định */
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Go Mail Service Demo</h1>
+
+        <!-- Phần hiển thị thông báo -->
+        <div id="message"></div>
+
+        <!-- Form gửi mã xác thực -->
+        <div class="form-section">
+            <h2>Gửi Mã Xác Thực (2FA)</h2>
+            <form id="2fa-form">
+                <input type="email" id="2fa-email" placeholder="Nhập email của bạn" required>
+                <button type="submit">Gửi Mã 2FA</button>
+            </form>
+        </div>
+
+        <!-- Form xác thực mã 2FA-->
+        <div class="form-section">
+            <h2>Xác Nhận Mã 2FA</h2>
+            <form id="verify-2fa-form">
+                <input type="email" id="verify-email" placeholder="Nhập lại email của bạn" required>
+                <input type="text" id="verify-code" placeholder="Nhập mã 6 số" required>
+                <button type="submit">Xác Nhận</button>
+            </form>
+        </div>
+
+        <!-- Form gửi link reset password -->
+        <div class="form-section">
+            <h2>Yêu Cầu Đặt Lại Mật Khẩu</h2>
+            <form id="reset-form">
+                <input type="email" id="reset-email" placeholder="Nhập email của bạn" required>
+                <button type="submit">Gửi Link Reset</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        const messageDiv = document.getElementById('message');
+
+        // Hàm hiển thị thông báo
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = type; // 'success' hoặc 'error'
+            messageDiv.style.display = 'block';
+            // Ẩn thông báo sau 5 giây
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Xử lý form 2FA
+        document.getElementById('2fa-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const email = document.getElementById('2fa-email').value;
+
+            try {
+                const response = await fetch('/send-2fa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage(result.message, 'success');
+                    document.getElementById('2fa-form').reset();
+                } else {
+                    showMessage(result.error || 'Đã có lỗi xảy ra.', 'error');
+                }
+            } catch (error) {
+                showMessage('Không thể kết nối đến server.', 'error');
+            }
+        });
+
+        // Xử lý form reset password
+        document.getElementById('reset-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const email = document.getElementById('reset-email').value;
+
+            try {
+                const response = await fetch('/send-reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage(result.message, 'success');
+                    document.getElementById('reset-form').reset();
+                } else {
+                    showMessage(result.error || 'Đã có lỗi xảy ra.', 'error');
+                }
+            } catch (error) {
+                showMessage('Không thể kết nối đến server.', 'error');
+            }
+        });
+
+        // Xử lý form xác thực 2FA
+        document.getElementById('verify-2fa-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const email = document.getElementById('verify-email').value;
+            const code = document.getElementById('verify-code').value;
+
+            try {
+                const response = await fetch('/verify-2fa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, code: code })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage(result.message, 'success');
+                    document.getElementById('verify-2fa-form').reset();
+                } else {
+                    showMessage(result.error || 'Đã có lỗi xảy ra.', 'error');
+                }
+            } catch (error) {
+                showMessage('Không thể kết nối đến server.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

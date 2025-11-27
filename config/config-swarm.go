@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+// For more complex infrastructure, can use helm chart with k8s
+
 // Example load config for docker swarm
 func LoadSwarmConfig(configPath string) (*Config, error) {
 	// same as load local

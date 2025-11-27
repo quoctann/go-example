@@ -4,6 +4,7 @@ import (
 	"go-example/command"
 	"go-example/config"
 	"go-example/cronjob"
+	"go-example/email"
 	"go-example/redis"
 	"go-example/streaming"
 	"go-example/websocket"
@@ -30,5 +31,8 @@ func main() {
 	// video streaming (like movies, not livestream low latency)
 	streaming.RunHLSExample(skip)
 
-	config.RunLocalEnvExample(false)
+	config.RunLocalEnvExample(skip)
+
+	email.RunSimpleExample(skip)
+	email.RunUseCaseExample(false)
 }

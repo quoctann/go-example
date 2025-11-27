@@ -10,3 +10,11 @@ database:
   user: "dev_user"
   password: "dev_password"
   name: "myapp_dev"
+
+smtp:
+  host: sandbox.smtp.mailtrap.io
+  port: 2525
+  user: my-mailtrap-username
+  password: my-mailtrap-password
+  charset: my-charset
+  jwtSecret: my-jwt-secret
