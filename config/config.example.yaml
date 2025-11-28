@@ -12,9 +12,14 @@ database:
   name: "myapp_dev"
 
 smtp:
-  host: sandbox.smtp.mailtrap.io
+  host: "sandbox.smtp.mailtrap.io"
   port: 2525
-  user: my-mailtrap-username
-  password: my-mailtrap-password
-  charset: my-charset
-  jwtSecret: my-jwt-secret
+  user: "my-mailtrap-username"
+  password: "my-mailtrap-password"
+  charset: "my-charset"
+  jwtSecret: "my-jwt-secret"
+
+redis:
+  address: "localhost:6379"
+  password: ""
+  db: 0

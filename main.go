@@ -5,6 +5,7 @@ import (
 	"go-example/config"
 	"go-example/cronjob"
 	"go-example/email"
+	"go-example/queue"
 	"go-example/redis"
 	"go-example/streaming"
 	"go-example/websocket"
@@ -34,5 +35,7 @@ func main() {
 	config.RunLocalEnvExample(skip)
 
 	email.RunSimpleExample(skip)
-	email.RunUseCaseExample(false)
+	email.RunUseCaseExample(skip)
+
+	queue.RunMailQueueExample(false)
 }

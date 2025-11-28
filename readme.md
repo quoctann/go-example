@@ -24,13 +24,13 @@ Example for
 
 [ ] metric & tracing (prometheus, otel)
 
-[ ] config deployment with viper (yaml, json)
+[x] config deployment with viper
 
 [ ] testing (testcontainers-go)
 
 [ ] api docs (swagger)
 
-[ ] email/sms (gomail, twilio), forgot password
+[x] send mail
 
 [ ] graphql (gqlgen)
 

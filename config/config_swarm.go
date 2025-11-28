@@ -30,9 +30,12 @@ func LoadSwarmConfig(configPath string) (*Config, error) {
 	v.AutomaticEnv()
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	// (DIFFERENT) process docker swarm secrets mounting as file (usually mount
-	// into /run/secrets), example: if env var DATABASE_PASSWORD, try read from
-	// file
+	/*
+		(DIFFERENT) process docker swarm secrets mounting as file (usually mount
+		into /run/secrets), example: if env var DATABASE_PASSWORD, try read from
+		file
+	*/
+
 	if !v.IsSet("database.password") {
 		secretPath := "/run/secrets/db_password_file" // filename in docker compose
 		if content, err := os.ReadFile(secretPath); err == nil {

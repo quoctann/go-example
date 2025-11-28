@@ -50,6 +50,12 @@ type Config struct {
 		Password  string `mapstructure:"password"`
 		JWTSecret string `mapstructure:"jwtSecret"`
 	} `mapstructure:"smtp"`
+
+	Redis struct {
+		Address  string `mapstructure:"address"`
+		Password string `mapstructure:"password"`
+		DB       int    `mapstructure:"db"`
+	} `mapstructure:"redis"`
 }
 
 func loadConfig(configPath string) (*Config, error) {
@@ -111,6 +117,6 @@ func RunLocalEnvExample(skip bool) {
 	)
 }
 
-func LoadSMTPConfig() (*Config, error) {
+func LoadLocalConfig() (*Config, error) {
 	return loadConfig("config/config.yaml")
 }

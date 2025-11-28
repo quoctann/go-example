@@ -192,7 +192,7 @@ func showResetPasswordFormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// if token is valid, allow user reset password
-	tmpl, err := template.ParseFiles("email/reset-password-form.html")
+	tmpl, err := template.ParseFiles("email/reset_password_form.html")
 	if err != nil {
 		log.Printf("Error parsing reset password form template: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

@@ -32,11 +32,6 @@ import (
 		Tuân thủ GDPR, CAN-SPAM về unsubscribe
 */
 
-type IEmailService interface {
-	// Send single email to recipient
-	Send(to, subject, body string) error
-}
-
 type EmailService struct {
 	auth      smtp.Auth
 	user      string
@@ -46,13 +41,13 @@ type EmailService struct {
 }
 
 func NewEmailService() (*EmailService, error) {
-	smtpCfg, err := config.LoadSMTPConfig()
+	appCfg, err := config.LoadLocalConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	cfg := utils.ToNonPointer(smtpCfg)
-	data, _ := json.MarshalIndent(cfg, "", "  ")
+	cfg := utils.ToNonPointer(appCfg)
+	data, _ := json.MarshalIndent(cfg.SMTP, "", "  ")
 	log.Printf("Loaded SMTP Config: %v\n", string(data))
 
 	return &EmailService{
@@ -88,7 +83,7 @@ func (s *EmailService) Send(to, subject, body string) error {
 
 func (s *EmailService) sendSimpleDemoEmail() error {
 	subject := "Sample Test Email"
-	to := "tqthost@gmail.com"
+	to := "youremail@gmail.com"
 	body := `
 	<html>
 		<body style="font-family: Arial, sans-serif">
@@ -160,7 +155,7 @@ func (s *EmailService) Send2FACode(to, code string) error {
 }
 
 func (s *EmailService) SendPasswordReset(to, name string) error {
-	userId := 100
+	userId := 100 // should get actual user id from db
 	subject := "Request Reset Password"
 	token, err := s.GenerateResetToken(true, userId)
 	if err != nil {
@@ -169,7 +164,7 @@ func (s *EmailService) SendPasswordReset(to, name string) error {
 
 	resetLink := fmt.Sprintf("http://localhost:8080/reset-password?token=%s", token)
 
-	templatePath, err := filepath.Abs("email/reset-password.html")
+	templatePath, err := filepath.Abs("email/reset_password.html")
 	if err != nil {
 		return err
 	}
