@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "go-example/grpc/proto";
+
+/*
+protoc --go_out=. --go_opt=paths=source_relative \
+    --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+    grpc/proto/user.proto
+*/
+
+// service definition
+
+service UserService {
+  rpc CreateUser(CreateUserRequest) returns (UserResponse);
+  rpc GetUser(GetUserRequest) returns (UserResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc StreamUsers(StreamUsersRequest) returns (stream UserResponse);
+}
+
+// message definition
+
+message User {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+  int32 age = 4;
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+  int32 age = 3;
+}
+
+message GetUserRequest {
+  int32 id = 1;
+}
+
+message UserResponse {
+  User user = 1;
+  string message = 2;
+}
+
+message ListUsersRequest {
+  // add pagination params later
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  int32 total = 2;
+}
+
+message StreamUsersRequest {
+  // empty for now
+}

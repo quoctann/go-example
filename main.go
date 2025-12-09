@@ -5,6 +5,8 @@ import (
 	"go-example/config"
 	"go-example/cronjob"
 	"go-example/email"
+	"go-example/exgrpc"
+	"go-example/interview"
 	"go-example/queue"
 	"go-example/redis"
 	"go-example/streaming"
@@ -37,5 +39,9 @@ func main() {
 	email.RunSimpleExample(skip)
 	email.RunUseCaseExample(skip)
 
-	queue.RunMailQueueExample(false)
+	queue.RunMailQueueExample(skip)
+
+	interview.Do(skip)
+
+	exgrpc.RunExample(false)
 }
