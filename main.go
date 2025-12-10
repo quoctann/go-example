@@ -40,8 +40,11 @@ func main() {
 	email.RunUseCaseExample(skip)
 
 	queue.RunMailQueueExample(skip)
+	queue.RunHelloWorldRMQ(skip)
+	queue.RunWorkerRMQ(skip)
+	queue.RunPubSubFanoutRMQ(false)
 
 	interview.Do(skip)
 
-	exgrpc.RunExample(false)
+	exgrpc.RunExample(skip)
 }

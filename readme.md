@@ -10,9 +10,11 @@ Example for
 
 [ ] upload/download file
 
-[ ] grpc
+[x] grpc
 
-[ ] stream
+[x] stream
+
+[ ] load balancing nginx
 
 [ ] message queue
 
