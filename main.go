@@ -4,6 +4,7 @@ import (
 	"go-example/command"
 	"go-example/config"
 	"go-example/cronjob"
+	"go-example/database"
 	"go-example/email"
 	"go-example/exgrpc"
 	"go-example/interview"
@@ -42,9 +43,11 @@ func main() {
 	queue.RunMailQueueExample(skip)
 	queue.RunHelloWorldRMQ(skip)
 	queue.RunWorkerRMQ(skip)
-	queue.RunPubSubFanoutRMQ(false)
+	queue.RunPubSubFanoutRMQ(skip)
 
 	interview.Do(skip)
 
 	exgrpc.RunExample(skip)
+
+	database.RunExample(false)
 }

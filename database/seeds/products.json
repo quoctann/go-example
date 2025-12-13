@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Laptop Dell XPS 13",
+    "sku": "DELL-XPS13-2024",
+    "category_slug": "computers",
+    "price": 1299.99,
+    "stock": 50,
+    "description": "13-inch laptop with Intel i7 processor",
+    "is_active": true,
+    "attributes": {
+      "brand": "Dell",
+      "processor": "Intel Core i7",
+      "ram": "16GB",
+      "storage": "512GB SSD"
+    }
+  },
+  {
+    "name": "iPhone 15 Pro",
+    "sku": "APPLE-IP15PRO-256",
+    "category_slug": "mobile-phones",
+    "price": 999.99,
+    "stock": 100,
+    "description": "Latest iPhone with A17 Pro chip",
+    "is_active": true,
+    "attributes": {
+      "brand": "Apple",
+      "storage": "256GB",
+      "color": "Natural Titanium",
+      "screen_size": "6.1 inch"
+    }
+  }
+]

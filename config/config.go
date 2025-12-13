@@ -41,6 +41,7 @@ type Config struct {
 		Name     string `mapstructure:"name"`
 		Host     string `mapstructure:"host"`
 		Port     int    `mapstructure:"port"`
+		SSLMode  string `mapstructure:"sslMode"`
 	} `mapstructure:"database"`
 
 	SMTP struct {
